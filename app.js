@@ -296,7 +296,6 @@ function onMouseDown(e) {
     isPainting = true;
     pushToStack(memCanvas);
     configCtx(ctx);
-
     states[currentState].onmousedown(e);
 }
 
@@ -304,39 +303,14 @@ function onMouseMove(e) {
     if (isPainting) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(memCanvas, 0, 0);
-
         states[currentState].onmousemove(e);
-        
-        // dependent on shape
-        // if (currentState === "stroke") {
-        //     stroke.onmousemove(e);
-        // } else if (currentState === "rectangle") {
-        //     rectangle.onmousemove(e);
-        // } else if (currentState === "circle") {
-        //     circle.onmousemove(e);
-        // } else if (currentState === "line") {
-        //     line.onmousemove(e);
-        // }
     }
 }
 
 function onMouseUp(e) {
-    if (isPainting) {
-        isPainting = false;
-        memCtx.drawImage(canvas, 0, 0);
-
-        states[currentState].onmouseup(e);
-        // dependent on shape
-        // if (currentState === "stroke") {
-        //     stroke.onmouseup(e);
-        // } else if (currentState === "rectangle") {
-        //     rectangle.onmouseup(e);
-        // } else if (currentState === "circle") {
-        //     circle.onmouseup(e);
-        // } else if (currentState === "line") {
-        //     line.onmouseup(e);
-        // }
-    }
+    isPainting = false;
+    memCtx.drawImage(canvas, 0, 0);
+    states[currentState].onmouseup(e);
 }
 
 canvas.addEventListener("mousedown", onMouseDown, false);
