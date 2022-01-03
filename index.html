@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #fff8ec;
+        }
+
+        canvas {
+            display: block;
+            border: 1px solid black;
+        }
+
+        .state {
+            border: 1px solid black;
+            padding: 0 5pt;
+            border-radius: 2pt;
+            color: white;
+            background-color: black;
+        }
+
+        .circle {
+            background-color: blue;
+        }
+
+        .rectangle {
+            background-color: green;
+        }
+
+        .stroke {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button id="clear">Clear</button>
+        <input type="color" id="colorPickerInput" value="#1c1c1c"/>
+        <input type="range" id="strokeWidthInput" min="1" max="20" value="3">
+        <button id="stroke">stroke</button>
+        <button id="rectangle">rectangle</button>
+        <button id="circle">circle</button>
+        <button id="line">line</button>
+        <button id="arrow">arrow</button>
+        <button id="save">Save</button>
+        <span id="state" class="state stroke">stroke</span>
+    </div>
+     
+    <canvas id="canvas"></canvas>
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!-- <div>Icons made by <a href="https://www.flaticon.com/authors/alkhalifi-design" title="alkhalifi design">alkhalifi design</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> -->
