@@ -219,6 +219,7 @@ const tool = {
                         ctx.fillText(lines[i], pos.x + 9, pos.y + (style.getFontSize().value + 3) * i);    
                     }
                     updateState({...state, isWritting: false});
+                    updateState({...state, isPainting: false});
                     saveToMem(canvas, ctx);
                 }
 
@@ -226,6 +227,7 @@ const tool = {
                     // remove floating element
                     document.getElementById("input_area").removeChild(floatingInput);
                     updateState({...state, isWritting: false});
+                    updateState({...state, isPainting: false});
                 }
             });
         },
@@ -261,6 +263,13 @@ const cmd = {
     },
 };
 
+const colorsCmd = {
+    49: "#000000",
+    50: "#FF0000",
+    51: "#00FF00",
+    52: "#0000FF"
+};
+
 const style = {
     getColor: function() {
         return document.getElementById("colorPickerInput").value;
@@ -283,6 +292,9 @@ const style = {
     },
     setCursor: function(cursor) {
         document.getElementsByTagName("body")[0].style.cursor = cursor;
+    },
+    setColor: function(color) {
+        document.getElementById("colorPickerInput").value = color;
     }
 }
 
@@ -344,6 +356,13 @@ function onWindowKeyDown(e) {
         if (t.shouldDisplay) {
             displayTool(t.name);
         }
+        return true;
+    }
+
+    const color = colorsCmd[e.keyCode];
+    if (color) {
+        style.setColor(color);
+        tool[state.currentTool].config(ctx);
         return true;
     }
 
