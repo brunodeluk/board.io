@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Paint</title>
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #fff8ec;
+            background-color: white;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         canvas {
             display: block;
-            border: 1px solid black;
+            z-index: 1;
         }
 
         .state {
@@ -26,36 +28,158 @@
             background-color: black;
         }
 
+        #current-tool-container {
+            overflow: hidden;
+            position: fixed;
+            top: 20pt;
+            right: 20pt;
+            font-size: 1.5rem;
+        }
+
         .circle {
-            background-color: blue;
+            color: blue;
+            background-color: lightblue;
         }
 
         .rectangle {
-            background-color: green;
+            color: green;
+            background-color: greenyellow;
         }
 
         .stroke {
-            background-color: red;
+            color: red;
+            background-color: lightyellow;
+        }
+
+        .line {
+            color: orangered;
+            background-color: lightgoldenrodyellow;
+        }
+
+        .arrow {
+            color: purple;
+            background-color: lightpink;
+        }
+
+        .text-option {
+            position: fixed;
+            background: none;
+            border: 2px dashed grey;
+            outline: none;
+            border-radius: 5px;
+            padding: 5pt;
+        }
+
+        .key-fig {
+            border-radius: 3px;
+            text-align: center;
+            color: inherit;
+            padding: 1pt 4pt;
+        }
+
+        .key-fig-container {
+            border-radius: 5px;
+            border-width: 2px 2px 4px 2px;
+            border-style: solid;
+            position: relative;
+        }
+
+        .key-fig-spacing {
+            margin-right: 3pt;
+        }
+
+        .key-fig-color {
+            background-color: white;
+            color: grey;
+        }
+
+        .key-fig-label {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        #bottom-keyboard-shortcuts-flex {
+            display: flex;
+            justify-content: space-around;
+            width: 30%;
+            margin: auto;
+            flex-wrap: wrap;
+        }
+
+        #bottom-keyboard-shortcuts {
+            bottom: 30pt;
+            position: fixed;
+            width: 100%;
+            z-index: 2;
         }
     </style>
 </head>
 <body>
     <div>
-        <button id="clear">Clear</button>
         <input type="color" id="colorPickerInput" value="#1c1c1c"/>
         <input type="range" id="strokeWidthInput" min="1" max="20" value="3">
-        <button id="stroke">stroke</button>
-        <button id="rectangle">rectangle</button>
-        <button id="circle">circle</button>
-        <button id="line">line</button>
-        <button id="arrow">arrow</button>
-        <button id="save">Save</button>
-        <span id="state" class="state stroke">stroke</span>
     </div>
-     
+    <div id=current-tool-container>
+        <div id="current-tool" class="key-fig-container stroke">
+            <div class="key-fig" id="current-tool-string">stroke</div>
+        </div>
+    </div>
     <canvas id="canvas"></canvas>
-    <script src="app.js"></script>
+    <div id="input_area"></div>
+    <div id="bottom-keyboard-shortcuts">
+        <div id="bottom-keyboard-shortcuts-flex">
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">S</div>
+                </div>
+                stroke
+            </div>
+    
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">R</div>
+                </div>
+                rectangle
+            </div>
+    
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">C</div>
+                </div>
+                circle
+            </div>
+    
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">L</div>
+                </div>
+                line
+            </div>
+    
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">A</div>
+                </div>
+                arrow
+            </div>
+    
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">T</div>
+                </div>
+                text
+            </div>
+
+            <div class="key-fig-label key-fig-color">
+                <div class="key-fig-container key-fig-spacing">
+                    <div class="key-fig">X</div>
+                </div>
+                clear
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
 </body>
 </html>
-
-<!-- <div>Icons made by <a href="https://www.flaticon.com/authors/alkhalifi-design" title="alkhalifi design">alkhalifi design</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> -->
