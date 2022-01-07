@@ -28,12 +28,21 @@
             background-color: black;
         }
 
-        #current-tool-container {
-            overflow: hidden;
+        #current-state {
+            display: flex;
+            justify-content: space-between;
             position: fixed;
+            margin: auto;
+            left: 0;
+            right: 0;
             top: 20pt;
-            right: 20pt;
             font-size: 1.5rem;
+            width: 90%;
+        }
+
+        #current-color {
+            width: 1.5rem;
+            color: black;
         }
 
         .circle {
@@ -46,7 +55,7 @@
             background-color: greenyellow;
         }
 
-        .stroke {
+        .draw {
             color: red;
             background-color: lightyellow;
         }
@@ -80,6 +89,7 @@
         .key-fig-container {
             border-radius: 5px;
             border-width: 2px 2px 4px 2px;
+            padding: 1pt 4pt;
             border-style: solid;
             position: relative;
         }
@@ -116,14 +126,15 @@
     </style>
 </head>
 <body>
-    <div>
+    <div style="display: none;">
         <input type="color" id="colorPickerInput" value="#1c1c1c"/>
         <input type="range" id="strokeWidthInput" min="1" max="20" value="3">
     </div>
-    <div id=current-tool-container>
-        <div id="current-tool" class="key-fig-container stroke">
-            <div class="key-fig" id="current-tool-string">stroke</div>
+    <div id="current-state">
+        <div id="current-tool" class="key-fig-container draw">
+            draw
         </div>
+        <div id="current-color" class="key-fig-container"></div>
     </div>
     <canvas id="canvas"></canvas>
     <div id="input_area"></div>
@@ -131,49 +142,49 @@
         <div id="bottom-keyboard-shortcuts-flex">
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">S</div>
+                    D
                 </div>
-                stroke
+                draw
             </div>
     
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">R</div>
+                    R
                 </div>
                 rectangle
             </div>
     
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">C</div>
+                    C
                 </div>
                 circle
             </div>
     
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">L</div>
+                    L
                 </div>
                 line
             </div>
     
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">A</div>
+                    A
                 </div>
                 arrow
             </div>
     
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">T</div>
+                    T
                 </div>
                 text
             </div>
 
             <div class="key-fig-label key-fig-color">
                 <div class="key-fig-container key-fig-spacing">
-                    <div class="key-fig">X</div>
+                    X
                 </div>
                 clear
             </div>
