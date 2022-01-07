@@ -1,12 +1,24 @@
+const initCanvasHeight = window.innerHeight;
+const initCanvasWidth = window.innerWidth;
+
+const initColor = "#000000";
+const initTool = 68;
+
+const initMinPoint = {x: initCanvasWidth, y: initCanvasHeight};
+const initMaxPoint = {x: 0, y: 0};
+let minPoint = {...initMinPoint};
+let maxPoint = {...initMaxPoint};
+
 let points = [];
 let memStack = [];
+let memPointsStack = [{min: {x: 0, y: 0}, max: {x: 0, y: 0}}];
 
 /**
  * Mapping of keyCodes -> tools
  */
 const tool = {
-    83: {
-        name: "stroke",
+    68: {
+        name: "draw",
         shouldDisplay: true,
         config: function(ctx) {
             style.setCursor("crosshair");
@@ -19,10 +31,12 @@ const tool = {
         preRender: function(canvas, ctx, e) {
             const pos = getMousePosition(canvas, e);
             pushPosition(pos);
+            setMaxMinPoint(pos);
         },
         render: function(canvas, ctx, e) {
             const pos = getMousePosition(canvas, e);
             pushPosition(pos);
+            setMaxMinPoint(pos);
 
             if (points.length < 4) {
                 var b = points[0];
@@ -174,6 +188,8 @@ const tool = {
             const fontFamilyStr = style.getFontFamily();
             const fontStr = fontSizeStr + " " + fontFamilyStr;            
             ctx.font = fontStr;
+            ctx.strokeStyle = style.getColor();
+            ctx.fillStyle = style.getColor();
         },
         preRender: function(canvas, ctx, e) {
             updateState({...state, isWritting: true});
@@ -193,8 +209,9 @@ const tool = {
             // add properties
             floatingInput.id = id;
             floatingInput.contentEditable = true;
+            floatingInput.style.color = style.getColor();
             floatingInput.style.left = pos.x + "px";
-            floatingInput.style.top = pos.y + "px";
+            floatingInput.style.top = pos.y+ "px";
             floatingInput.style.fontFamily = style.getFontFamily();
             floatingInput.style.fontSize = style.getFontSize().str;
             floatingInput.classList.add("text-option");
@@ -238,6 +255,33 @@ const tool = {
             isPainting = false;
         },
     },
+    83: {
+        name: "select",
+        shouldDisplay: true,
+        config: function(ctx) {
+            style.setCursor("default");
+        },
+        preRender: function(canvas, ctx, e) {
+            const pos = getMousePosition(canvas, e);
+
+            for (let i = memPointsStack.length - 1; i > 0; i--) {
+                const minP = memPointsStack[i].min;
+                const maxP = memPointsStack[i].max;
+        
+                if (isInsideFig(minP, maxP, pos.x, pos.y)) {
+                    selectFigure(minP, maxP);
+                    return true;
+                }
+            }
+            return true;
+        },
+        render: function(canvas, ctx, e) {
+            return true;
+        },
+        postRender: function(canvas, ctx, e) {
+            return true;
+        },
+    },
 };
 
 const cmd = {
@@ -255,8 +299,6 @@ const cmd = {
         }
     },
     clear: function(ctx, memCtx, canvas) {
-        pushToMemStack(canvas);
-
         clear();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         memCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -295,6 +337,7 @@ const style = {
     },
     setColor: function(color) {
         document.getElementById("colorPickerInput").value = color;
+        displayColor(color);
     }
 }
 
@@ -306,7 +349,7 @@ let state = {
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-resizeCanvas(canvas, window.innerWidth, window.innerHeight);
+resizeCanvas(canvas, initCanvasWidth, initCanvasHeight);
 
 const memCanvas = document.createElement("canvas");
 const memCtx = memCanvas.getContext("2d");
@@ -339,7 +382,24 @@ canvas.addEventListener("mouseup", onCanvasMouseUp, false);
 function onCanvasMouseUp(e) {
     updateState({...state, isPainting: false});
     saveToMem(canvas, ctx);
+
+    pushToMemPointsStack({...minPoint}, {...maxPoint});
+    resetMinMaxPoints();
+
     tool[state.currentTool].postRender(canvas, ctx, e);
+};
+
+function selectAllFigures() {
+    for (let i = 0; i < memPointsStack.length; i++) {
+        selectFigure({...memPointsStack[i].min}, {...memPointsStack[i].max});
+    }
+}
+
+function selectFigure(minPoint, maxPoint) {
+    ctx.setLineDash([10, 10]);
+    ctx.beginPath();
+    ctx.rect(minPoint.x, minPoint.y, maxPoint.x - minPoint.x, maxPoint.y - minPoint.y);
+    ctx.stroke();
 };
 
 window.addEventListener("keydown", onWindowKeyDown, false);
@@ -368,6 +428,8 @@ function onWindowKeyDown(e) {
 
     switch(e.keyCode) {
         case 88:
+            pushToMemStack(canvas);
+            pushToMemPointsStack({x: 0, y:0}, {x:0, y:0});
             cmd.clear(ctx, memCtx, memCanvas);
             return true;
         case 90:
@@ -382,12 +444,15 @@ function updateState(newState) {
 
 function displayTool(toolName) {
     const currentToolElm = document.getElementById("current-tool");
+    currentToolElm.innerText = toolName;
     currentToolElm.className = "key-fig-container";
     currentToolElm.classList.add(toolName);
-
-    const currentToolStr = document.getElementById("current-tool-string");
-    currentToolStr.innerText = toolName;
 };
+
+function displayColor(color) {
+    const currentColorElm = document.getElementById("current-color");
+    currentColorElm.style.backgroundColor = color;
+}
 
 function getMousePosition(canvas, e) {
     const rect = canvas.getBoundingClientRect();
@@ -405,6 +470,11 @@ function pushPosition(pos) {
 
 function clear() {
     points = [];
+};
+
+function resetMinMaxPoints() {
+    minPoint = {...initMinPoint};
+    maxPoint = {...initMaxPoint};
 };
 
 function copyToCanvas(csv) {
@@ -427,5 +497,36 @@ function pushToMemStack(canvas) {
     memStack.push(auxCanvas);
 };
 
-updateState({...state, currentTool: 83});
+function pushToMemPointsStack(minPoint, maxPoint) {
+    memPointsStack.push({min: minPoint, max: maxPoint});
+};
+
+function setMaxMinPoint(p) {
+    if (p.x < minPoint.x) {
+        minPoint.x = p.x;
+    }
+
+    if (p.x > maxPoint.x) {
+        maxPoint.x = p.x;
+    }
+
+    if (p.y < minPoint.y) {
+        minPoint.y = p.y;
+    }
+
+    if (p.y > maxPoint.y) {
+        maxPoint.y = p.y;
+    }
+};
+
+function isInsideFig(minP, maxP, x, y) {
+    if (x > minP.x && x < maxP.x && y > minP.y && y < maxP.y) {
+        return true;
+    }
+
+    return false;
+};
+
+updateState({...state, currentTool: initTool});
 tool[state.currentTool].config(ctx);
+style.setColor(initColor);
