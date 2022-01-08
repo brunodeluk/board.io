@@ -11,7 +11,15 @@ let maxPoint = {...initMaxPoint};
 
 let points = [];
 let memStack = [];
-let memPointsStack = [{min: {x: 0, y: 0}, max: {x: 0, y: 0}}];
+
+let figures = [{
+    data: new Uint8ClampedArray(),
+    location: {
+        min: {x: 0, y: 0}, 
+        max: {x: 0, y: 0}
+    },
+}];
+// let memPointsStack = [{min: {x: 0, y: 0}, max: {x: 0, y: 0}}];
 
 /**
  * Mapping of keyCodes -> tools
@@ -383,7 +391,7 @@ function onCanvasMouseUp(e) {
     updateState({...state, isPainting: false});
     saveToMem(canvas, ctx);
 
-    pushToMemPointsStack({...minPoint}, {...maxPoint});
+    pushToMemPointsStack({...minPoint}, {...maxPoint}, ctx);
     resetMinMaxPoints();
 
     tool[state.currentTool].postRender(canvas, ctx, e);
@@ -429,7 +437,7 @@ function onWindowKeyDown(e) {
     switch(e.keyCode) {
         case 88:
             pushToMemStack(canvas);
-            pushToMemPointsStack({x: 0, y:0}, {x:0, y:0});
+            pushToMemPointsStack({x: 0, y:0}, {x:0, y:0}, ctx);
             cmd.clear(ctx, memCtx, memCanvas);
             return true;
         case 90:
@@ -497,8 +505,16 @@ function pushToMemStack(canvas) {
     memStack.push(auxCanvas);
 };
 
-function pushToMemPointsStack(minPoint, maxPoint) {
-    memPointsStack.push({min: minPoint, max: maxPoint});
+function pushToMemPointsStack(minPoint, maxPoint, ctx) {
+    const sx = minPoint.x;
+    const sy = minPoint.y;
+    const sw = maxPoint.x - minPoint.x;
+    const sh = maxPoint.y - minPoint.y;
+    const imageData = ctx.getImageData(sx, sy, sw, sh);
+    figures.push({
+        data: imageData.data,
+        location: {min: minPoint, max: maxPoint},
+    });
 };
 
 function setMaxMinPoint(p) {
