@@ -6,10 +6,17 @@ const initTool = 68;
 
 let points = [];
 let memStack = [];
-
 /**
  * Mapping of keyCodes -> tools
  */
+
+let state = {
+    currentTool: 83,
+    isPainting: false,
+    isWritting: false,
+};
+
+
 const tool = {
     68: {
         name: "draw",
@@ -29,7 +36,6 @@ const tool = {
         render: function(canvas, ctx, e) {
             const pos = getMousePosition(canvas, e);
             pushPosition(pos);
-
             if (points.length < 4) {
                 var b = points[0];
                 ctx.beginPath();
@@ -221,9 +227,8 @@ const tool = {
                     document.getElementById("input_area").removeChild(floatingInput);
 
                     // render text to canvas
-                    let innerHTML = floatingInput.innerHTML;
-                    innerHTML = innerHTML.replaceAll("</div>", "");
-                    const lines = innerHTML.split("<div>");
+                    let p = floatingInput.innerText;
+                    const lines = p.split("\n");
                     for (let i = 0; i < lines.length; i++) {
                         ctx.fillText(lines[i], pos.x + 9, pos.y + 7 + (style.getFontSize().value + 3) * i);    
                     }
@@ -306,11 +311,6 @@ const style = {
     }
 }
 
-let state = {
-    currentTool: 83,
-    isPainting: false,
-    isWritting: false,
-};
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -345,7 +345,7 @@ function onCanvasMouseMove(e) {
 
 canvas.addEventListener("mouseup", onCanvasMouseUp, false);
 function onCanvasMouseUp(e) {
-    updateState({...state, isPainting: false});
+    updateState({...state, isPainting: false});    
     saveToMem(canvas, ctx);
     tool[state.currentTool].postRender(canvas, ctx, e);
 };

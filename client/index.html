@@ -11,13 +11,13 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: white;
+            /* background-color: white; */
             font-family: Arial, Helvetica, sans-serif;
         }
 
         canvas {
             display: block;
-            z-index: 1;
+            z-index: 10;
         }
 
         .state {
@@ -99,8 +99,13 @@
         }
 
         .key-fig-color {
-            background-color: white;
             color: grey;
+        }
+
+        .key-fig-vert-space {
+            margin-bottom: 5pt;
+            padding: 5pt;
+            border-radius: 5pt;
         }
 
         .key-fig-label {
@@ -110,18 +115,18 @@
         }
 
         #bottom-keyboard-shortcuts-flex {
-            display: flex;
-            justify-content: space-around;
-            width: 30%;
-            margin: auto;
-            flex-wrap: wrap;
+            display: table-cell; 
+            vertical-align: middle;
         }
 
         #bottom-keyboard-shortcuts {
-            bottom: 30pt;
+            top: 0pt;
+            left: 5%;
+            height: 100%;
+            display: table;
+            position: relative;
             position: fixed;
-            width: 100%;
-            z-index: 2;
+            z-index: -1;
         }
     </style>
 </head>
@@ -136,53 +141,54 @@
         </div>
         <div id="current-color" class="key-fig-container"></div>
     </div>
+
     <canvas id="canvas"></canvas>
     <div id="input_area"></div>
     <div id="bottom-keyboard-shortcuts">
         <div id="bottom-keyboard-shortcuts-flex">
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     D
                 </div>
                 draw
             </div>
     
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     R
                 </div>
                 rectangle
             </div>
     
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     C
                 </div>
                 circle
             </div>
     
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     L
                 </div>
                 line
             </div>
     
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     A
                 </div>
                 arrow
             </div>
     
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     T
                 </div>
                 text
             </div>
 
-            <div class="key-fig-label key-fig-color">
+            <div class="key-fig-label key-fig-color key-fig-vert-space">
                 <div class="key-fig-container key-fig-spacing">
                     X
                 </div>
@@ -192,5 +198,6 @@
     </div>
     
     <script src="index.js"></script>
+
 </body>
 </html>
