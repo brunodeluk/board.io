@@ -66,11 +66,15 @@ const tool = {
         shouldDisplay: true,
         config: function(ctx) {
             style.setCursor("default");
+            const fontSizeStr = style.getFontSize().str;
+            const fontFamilyStr = style.getFontFamily();
+            const fontStr = fontSizeStr + " " + fontFamilyStr;   
             ctx.lineWidth = style.getStrokeWidth();
             ctx.lineJoin = '';
             ctx.lineCap = '';
             ctx.strokeStyle = style.getColor();
-            ctx.fillStyle = style.getColor();
+            ctx.fillStyle = style.getColor();      
+            ctx.font = fontStr;
         },
         preRender: function(canvas, ctx, e) {
             const pos = getMousePosition(canvas, e);
@@ -83,7 +87,11 @@ const tool = {
             ctx.stroke();
         },
         postRender: function(canvas, ctx, e) {
+            const pos = getMousePosition(canvas, e);
+            const textBoxPos = {x: (points[0].x + (pos.x - points[0].x)/2) - 9 , y: pos.y + 20}
+            renderTextBox(textBoxPos, canvas, ctx, e);
             clear();
+            isPainting = false;
         },
     },
     67: {
@@ -91,10 +99,14 @@ const tool = {
         shouldDisplay: true,
         config: function(ctx) {
             style.setCursor("default");
+            const fontSizeStr = style.getFontSize().str;
+            const fontFamilyStr = style.getFontFamily();
+            const fontStr = fontSizeStr + " " + fontFamilyStr;   
             ctx.lineWidth = style.getStrokeWidth();
             ctx.lineJoin = '';
             ctx.lineCap = '';
             ctx.strokeStyle = style.getColor();
+            ctx.font = fontStr;
         },
         preRender: function(canvas, ctx, e) {
             const pos = getMousePosition(canvas, e);
@@ -111,7 +123,11 @@ const tool = {
             ctx.stroke();
         },
         postRender: function(canvas, ctx, e) {
+            const pos = getMousePosition(canvas, e);
+            const textBoxPos = {x: (points[0].x + (pos.x - points[0].x)/2) - 9 , y: pos.y + 20}
+            renderTextBox(textBoxPos, canvas, ctx, e);
             clear();
+            isPainting = false;
         },
     },
     76: {
@@ -190,60 +206,8 @@ const tool = {
             ctx.fillStyle = style.getColor();
         },
         preRender: function(canvas, ctx, e) {
-            updateState({...state, isWritting: true});
-
-            // check if the floating input has already been created
-            let id = "text_input";
-            let floatingInput = document.getElementById(id);
-            if (floatingInput) {
-                // remove it
-                document.getElementById("input_area").removeChild(floatingInput);
-            }
-
-            floatingInput = document.createElement("spam");
-
             const pos = getMousePosition(canvas, e);
-
-            // add properties
-            floatingInput.id = id;
-            floatingInput.contentEditable = true;
-            floatingInput.style.color = style.getColor();
-            floatingInput.style.left = pos.x + "px";
-            floatingInput.style.top = (pos.y - style.getFontSize().value) + "px";
-            floatingInput.style.fontFamily = style.getFontFamily();
-            floatingInput.style.fontSize = style.getFontSize().str;
-            floatingInput.classList.add("text-option");
-
-            document.getElementById("input_area").appendChild(floatingInput);
-            // to prevent the action of clicking to remove the
-            // focus from the input
-            e.preventDefault();
-            floatingInput.focus();
-            
-            floatingInput.addEventListener("keydown", (e) => {
-                // shift + enter
-                if (e.shiftKey && e.code === "Enter") {
-                    // remove floating element
-                    document.getElementById("input_area").removeChild(floatingInput);
-
-                    // render text to canvas
-                    let p = floatingInput.innerText;
-                    const lines = p.split("\n");
-                    for (let i = 0; i < lines.length; i++) {
-                        ctx.fillText(lines[i], pos.x + 9, pos.y + 7 + (style.getFontSize().value + 3) * i);    
-                    }
-                    updateState({...state, isWritting: false});
-                    updateState({...state, isPainting: false});
-                    saveToMem(canvas, ctx);
-                }
-
-                if (e.code === "Escape") {
-                    // remove floating element
-                    document.getElementById("input_area").removeChild(floatingInput);
-                    updateState({...state, isWritting: false});
-                    updateState({...state, isPainting: false});
-                }
-            });
+            renderTextBox(pos, canvas, ctx, e);
         },
         render: function(canvas, ctx, e) {
             return true;
@@ -253,6 +217,66 @@ const tool = {
         },
     },
 };
+
+function renderTextBox(pos, canvas, ctx, e) {
+    updateState({...state, isWritting: true});
+
+    // check if the floating input has already been created
+    let id = "text_input";
+    let floatingInput = document.getElementById(id);
+    if (floatingInput) {
+        // remove it
+        document.getElementById("input_area").removeChild(floatingInput);
+    }
+
+    floatingInput = document.createElement("spam");
+    let initPosition = pos.x;
+    // add properties
+    floatingInput.id = id;
+    floatingInput.contentEditable = true;
+    floatingInput.style.color = style.getColor();
+    floatingInput.style.left = initPosition + "px";
+    floatingInput.style.top = (pos.y - style.getFontSize().value) + "px";
+    floatingInput.style.fontFamily = style.getFontFamily();
+    floatingInput.style.fontSize = style.getFontSize().str;
+    floatingInput.classList.add("text-option");
+
+    document.getElementById("input_area").appendChild(floatingInput);
+    // to prevent the action of clicking to remove the
+    // focus from the input
+    e.preventDefault();
+    floatingInput.focus();
+
+    floatingInput.addEventListener("input", (e) => {
+        initPosition = pos.x - 5*e.target.textContent.length;
+        floatingInput.style.left = initPosition + "px";
+    });
+    
+    floatingInput.addEventListener("keydown", (e) => {
+        // shift + enter
+        if (e.shiftKey && e.code === "Enter") {
+            // remove floating element
+            document.getElementById("input_area").removeChild(floatingInput);
+
+            // render text to canvas
+            let p = floatingInput.innerText;
+            const lines = p.split("\n");
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], initPosition + 9, pos.y + 7 + (style.getFontSize().value + 3) * i);    
+            }
+            updateState({...state, isWritting: false});
+            updateState({...state, isPainting: false});
+            saveToMem(canvas, ctx);
+        }
+
+        if (e.code === "Escape") {
+            // remove floating element
+            document.getElementById("input_area").removeChild(floatingInput);
+            updateState({...state, isWritting: false});
+            updateState({...state, isPainting: false});
+        }
+    });
+}
 
 const cmd = {
     undo: function(ctx, memCtx, canvas) {
